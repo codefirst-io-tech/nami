@@ -15,3 +15,7 @@ spring:
         web-allow-others: false
     console.path: /h2-console
     console.settings.trace: false
+springdoc:
+  swagger-ui:
+    url: "/v3/api-docs"
+    path: "/"
