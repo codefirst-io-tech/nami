@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:h2:file:/Users/codefirst/Documents/Projects/Nami/src/main/resources/db/test
+    username: username
+    password: password
+    driverClassName: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+  h2:
+    console:
+      enabled: true
+      settings:
+        web-allow-others: false
+    console.path: /h2-console
+    console.settings.trace: false
