@@ -20,7 +20,7 @@ public class JwtTokenUtil {
     public static TokenResource generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
         Date expireDate = new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY);
-        String token = TOKEN_PREFIX + doGenerateToken(claims, user.getUsername(), user.getId().toString(), expireDate);
+        String token = TOKEN_PREFIX + doGenerateToken(claims, user.getUsername(), String.valueOf(user.getId()), expireDate);
         return new TokenResource(token, expireDate);
     }
 
