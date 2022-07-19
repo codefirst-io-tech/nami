@@ -7,7 +7,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
   h2:
     console:
       enabled: true
@@ -15,6 +15,17 @@ spring:
         web-allow-others: false
     console.path: /h2-console
     console.settings.trace: false
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: abidinozd@gmail.com
+    password: gmrpubrkrbnvtaqa
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 springdoc:
   swagger-ui:
     url: "/v3/api-docs"

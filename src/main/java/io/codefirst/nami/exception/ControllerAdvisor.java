@@ -1,6 +1,5 @@
 package io.codefirst.nami.exception;
 
-import io.codefirst.nami.dto.ErrorDto;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
