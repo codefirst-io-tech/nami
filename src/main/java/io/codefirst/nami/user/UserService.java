@@ -18,7 +18,7 @@ record UserService(UserRepository userRepository, PasswordEncoder passwordEncode
         return userRepository.findByUsername(username);
     }
 
-     public User save(User user) {
+    public User save(User user) {
         Optional<User> optionalUser = findByUsername(user.getUsername());
         if (optionalUser.isPresent()) {
             throw new BadRequestException(ErrorMessageType.USERNAME_ALREADY_EXIST.getMessage());
@@ -27,7 +27,7 @@ record UserService(UserRepository userRepository, PasswordEncoder passwordEncode
         return userRepository.save(user);
     }
 
-     public TokenResource authenticate(User authenticateUser) {
+    public TokenResource authenticate(User authenticateUser) {
         User user = findByUsername(authenticateUser.getUsername()).orElseThrow(() -> new UsernameNotFoundException(ErrorMessageType.USERNAME_NOT_FOUND.getMessage()));
         if (passwordEncoder.matches(authenticateUser.getPassword(), user.getPassword())) {
             return JwtTokenUtil.generateToken(user);
@@ -36,7 +36,7 @@ record UserService(UserRepository userRepository, PasswordEncoder passwordEncode
         }
     }
 
-     public List<User> findAll() {
+    public List<User> findAll() {
         return userRepository.findAll();
     }
 }

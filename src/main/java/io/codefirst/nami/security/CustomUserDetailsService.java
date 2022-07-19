@@ -1,7 +1,6 @@
 package io.codefirst.nami.security;
 
 import io.codefirst.nami.user.User;
-import io.codefirst.nami.user.UserClient;
 import io.codefirst.nami.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

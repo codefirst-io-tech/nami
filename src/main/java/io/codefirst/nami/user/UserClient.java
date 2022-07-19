@@ -4,7 +4,6 @@ import io.codefirst.nami.auth.TokenResource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public record UserClient(UserMapper userMapper, UserService userService) {
