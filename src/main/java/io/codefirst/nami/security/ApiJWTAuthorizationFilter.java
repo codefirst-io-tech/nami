@@ -3,9 +3,12 @@ package io.codefirst.nami.security;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.codefirst.nami.exception.ErrorDto;
+import io.codefirst.nami.exception.ErrorMessageType;
+import io.codefirst.nami.exception.UnauthorizedException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,12 +18,11 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Objects;
+import java.util.*;
 
 public class ApiJWTAuthorizationFilter extends BasicAuthenticationFilter {
 
@@ -33,9 +35,8 @@ public class ApiJWTAuthorizationFilter extends BasicAuthenticationFilter {
                                     HttpServletResponse res,
                                     FilterChain chain) throws ServletException, IOException {
 
-        String authorizationHeader = req.getHeader(SecurityConstant.HEADER_AUTHORIZATION);
-
-        if (authorizationHeader == null || !(authorizationHeader.startsWith(SecurityConstant.TOKEN_PREFIX) || authorizationHeader.startsWith(SecurityConstant.BASIC_AUTH_PREFIX))) {
+        String token = getTokenInCookies(req.getCookies());
+        if (StringUtils.isEmpty(token)) {
             chain.doFilter(req, res);
             return;
         }
@@ -43,7 +44,7 @@ public class ApiJWTAuthorizationFilter extends BasicAuthenticationFilter {
         UsernamePasswordAuthenticationToken authentication = null;
 
         try {
-            authentication = getAuthentication(req);
+            authentication = getAuthentication(token);
         } catch (ExpiredJwtException exception) {
             ObjectMapper objectMapper = new ObjectMapper();
             ErrorDto dto = new ErrorDto(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.name(), "Oturumunuzun süresi dolmuş, lütfen tekrar giriş yapınız", new Date());
@@ -62,14 +63,12 @@ public class ApiJWTAuthorizationFilter extends BasicAuthenticationFilter {
         chain.doFilter(req, res);
     }
 
-    private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
-        String token = request.getHeader(SecurityConstant.HEADER_AUTHORIZATION);
+    private UsernamePasswordAuthenticationToken getAuthentication(String token) {
         if (Objects.nonNull(token)) {
-
             Claims claims;
             claims = Jwts.parser()
                     .setSigningKey(SecurityConstant.SECRET)
-                    .parseClaimsJws(token.replace(SecurityConstant.TOKEN_PREFIX, ""))
+                    .parseClaimsJws(token)
                     .getBody();
 
             String username = claims.getSubject();
@@ -77,8 +76,22 @@ public class ApiJWTAuthorizationFilter extends BasicAuthenticationFilter {
             if (Objects.nonNull(username)) {
                 return new UsernamePasswordAuthenticationToken(username, null, new ArrayList<>());
             }
+            throw new UnauthorizedException(ErrorMessageType.UNAUTHORIZED.getMessage());
+        }
+        throw new UnauthorizedException(ErrorMessageType.UNAUTHORIZED.getMessage());
+    }
+
+    private String getTokenInCookies(Cookie[] cookies) {
+        if (Objects.isNull(cookies)) {
             return null;
         }
-        return null;
+
+        List<Cookie> cookieList = Arrays.asList(cookies);
+        Optional<Cookie> optCookie = cookieList
+                .stream()
+                .filter(cookie -> cookie.getName().equals(SecurityConstant.TOKEN_COOKIE_NAME))
+                .findFirst();
+
+        return optCookie.map(Cookie::getValue).orElse(null);
     }
 }
